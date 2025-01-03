@@ -33,22 +33,23 @@ export default function EggCookingHelper() {
             .set("Hard", 9)
     );
 
-    // const cookingTime = cookingTimes.get(eggSize).get(boilingLevel);
-
-    // if (cookingTime !== undefined) {
-
-    // }
-
     function calcBoilTime(eggSize: EggSize, boilingLevel: BoilingLevel) {
-        let calculatedTime;
-        const sizeMap = cookingTimes.get(eggSize);
-        return calculatedTime;
+        let cookingTime;
+        if (eggSize !== undefined) {
+            const sizeMap = cookingTimes.get(eggSize);
+
+            if (sizeMap !== undefined) {
+                cookingTime = sizeMap.get(boilingLevel);
+            }
+        }
+        return cookingTime;
     }
 
     return (
         <div>
             <h1>Egg Cooking Helper</h1>
             <div>
+                <h3>Select the Egg Size:</h3>
                 <button
                     key={"S"}
                     onClick={() => {
@@ -75,6 +76,7 @@ export default function EggCookingHelper() {
                 </button>
             </div>
             <div>
+                <h3>Select the desired consistency:</h3>
                 <button
                     key={"Soft"}
                     onClick={() => {
@@ -99,6 +101,12 @@ export default function EggCookingHelper() {
                 >
                     Hard
                 </button>
+            </div>
+            <div>
+                <h3>Calculated Cooking Time:</h3>
+                {eggSize && boilingLevel && (
+                    <div>{calcBoilTime(eggSize, boilingLevel)}</div>
+                )}
             </div>
         </div>
     );
