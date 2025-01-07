@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function EggCookingHelper() {
     type EggSize = "S" | "M" | "L";
@@ -6,6 +6,8 @@ export default function EggCookingHelper() {
 
     const [eggSize, setEggSize] = useState<EggSize>();
     const [boilingLevel, setBoilingLevel] = useState<BoilingLevel>();
+    const [remainingTimerSeconds, setRemainingTimerSeconds] = useState(0);
+    const [intervalID, setIntervalID] = useState<number>();
 
     const cookingTimes = new Map<EggSize, Map<BoilingLevel, number>>();
 
@@ -42,8 +44,26 @@ export default function EggCookingHelper() {
                 cookingTime = sizeMap.get(boilingLevel);
             }
         }
-        return cookingTime;
+        if (cookingTime !== undefined) {
+            setRemainingTimerSeconds(cookingTime * 60);
+        }
     }
+
+    function reduceTimer() {
+        if (remainingTimerSeconds > 0) {
+            setRemainingTimerSeconds((remainingTimerSeconds) => {
+                return remainingTimerSeconds - 1;
+            });
+        } else {
+            return 0;
+        }
+    }
+
+    useEffect(() => {
+        eggSize && boilingLevel && calcBoilTime(eggSize, boilingLevel);
+    }, [eggSize, boilingLevel]);
+    //Console Log entfernen vor PR
+    console.log(remainingTimerSeconds, "State");
 
     return (
         <div>
@@ -104,9 +124,23 @@ export default function EggCookingHelper() {
             </div>
             <div>
                 <h3>Calculated Cooking Time:</h3>
-                {eggSize && boilingLevel && (
-                    <div>{calcBoilTime(eggSize, boilingLevel)}</div>
-                )}
+                <div>{remainingTimerSeconds}</div>
+                <button
+                    onClick={() => {
+                        const intervalID = setInterval(reduceTimer, 1000);
+                        setIntervalID(intervalID);
+                    }}
+                >
+                    Start Timer
+                </button>
+                <button
+                    onClick={() => {
+                        setRemainingTimerSeconds(0);
+                        clearInterval(intervalID);
+                    }}
+                >
+                    Stop Timer
+                </button>
             </div>
         </div>
     );
