@@ -10,6 +10,8 @@ export default function EggCookingHelper() {
     const [intervalID, setIntervalID] = useState<number>();
 
     const cookingTimes = new Map<EggSize, Map<BoilingLevel, number>>();
+    const minutes = Math.floor(remainingTimerSeconds / 60);
+    const seconds = remainingTimerSeconds % 60;
 
     cookingTimes.set(
         "S",
@@ -62,8 +64,7 @@ export default function EggCookingHelper() {
     useEffect(() => {
         eggSize && boilingLevel && calcBoilTime(eggSize, boilingLevel);
     }, [eggSize, boilingLevel]);
-    //Console Log entfernen vor PR
-    console.log(remainingTimerSeconds, "State");
+    console.log(intervalID, "intervall");
 
     return (
         <div>
@@ -124,24 +125,33 @@ export default function EggCookingHelper() {
             </div>
             <div>
                 <h3>Calculated Cooking Time:</h3>
-                <div>{remainingTimerSeconds}</div>
-                <button
-                    onClick={() => {
-                        const intervalID = setInterval(reduceTimer, 1000);
-                        setIntervalID(intervalID);
-                    }}
-                >
-                    Start Timer
-                </button>
-                <button
-                    onClick={() => {
-                        setRemainingTimerSeconds(0);
-                        clearInterval(intervalID);
-                    }}
-                >
-                    Stop Timer
-                </button>
+                <div>
+                    {minutes}:{seconds.toString().padStart(2, "0")}
+                </div>
+                {intervalID === undefined && (
+                    <button
+                        onClick={() => {
+                            const intervalID = setInterval(reduceTimer, 1000);
+                            setIntervalID(intervalID);
+                        }}
+                    >
+                        Start Timer
+                    </button>
+                )}
+                {intervalID !== undefined && (
+                    <button
+                        onClick={() => {
+                            setRemainingTimerSeconds(0);
+                            clearInterval(intervalID);
+                            setIntervalID(undefined);
+                        }}
+                    >
+                        Stop Timer
+                    </button>
+                )}
             </div>
         </div>
     );
 }
+
+// Alert bei 0 Sekunden einbauen; Reset Behaviour überarbeiten;
