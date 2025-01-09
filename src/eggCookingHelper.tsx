@@ -8,6 +8,7 @@ export default function EggCookingHelper() {
     const [boilingLevel, setBoilingLevel] = useState<BoilingLevel>("Soft");
     const [remainingTimerSeconds, setRemainingTimerSeconds] = useState(0);
     const [intervalID, setIntervalID] = useState<number>();
+    const [alertVisible, setAlertVisible] = useState(false);
 
     const cookingTimes = new Map<EggSize, Map<BoilingLevel, number>>();
     const minutes = Math.floor(remainingTimerSeconds / 60);
@@ -54,9 +55,14 @@ export default function EggCookingHelper() {
 
     function reduceTimer() {
         setRemainingTimerSeconds((remainingTimerSeconds) => {
-            if (remainingTimerSeconds > 0) {
+            if (remainingTimerSeconds > 1) {
                 return remainingTimerSeconds - 1;
             }
+            setAlertVisible(true);
+            setIntervalID((intervalID) => {
+                clearInterval(intervalID);
+                return undefined;
+            });
             return 0;
         });
     }
@@ -153,14 +159,34 @@ export default function EggCookingHelper() {
                             }
                             clearInterval(intervalID);
                             setIntervalID(undefined);
+                            setAlertVisible(false);
                         }}
                     >
                         Stop Timer
                     </button>
                 )}
+                {alertVisible && (
+                    <div>
+                        <h3>Your Egg is ready!</h3>
+                        <button
+                            onClick={() => {
+                                setAlertVisible(false);
+                                const initialBoilingTime = calcBoilTime(
+                                    eggSize,
+                                    boilingLevel
+                                );
+                                if (initialBoilingTime !== undefined) {
+                                    setRemainingTimerSeconds(
+                                        initialBoilingTime
+                                    );
+                                }
+                            }}
+                        >
+                            Got it!
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );
 }
-
-// Alert bei 0 Sekunden einbauen; Reset Behaviour überarbeiten;
