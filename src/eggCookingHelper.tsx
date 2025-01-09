@@ -4,8 +4,8 @@ export default function EggCookingHelper() {
     type EggSize = "S" | "M" | "L";
     type BoilingLevel = "Soft" | "Medium" | "Hard";
 
-    const [eggSize, setEggSize] = useState<EggSize>();
-    const [boilingLevel, setBoilingLevel] = useState<BoilingLevel>();
+    const [eggSize, setEggSize] = useState<EggSize>("S");
+    const [boilingLevel, setBoilingLevel] = useState<BoilingLevel>("Soft");
     const [remainingTimerSeconds, setRemainingTimerSeconds] = useState(0);
     const [intervalID, setIntervalID] = useState<number>();
 
@@ -13,10 +13,12 @@ export default function EggCookingHelper() {
     const minutes = Math.floor(remainingTimerSeconds / 60);
     const seconds = remainingTimerSeconds % 60;
 
+    //Test Timer Zeit vor PR umstellen auf 3
+
     cookingTimes.set(
         "S",
         new Map<BoilingLevel, number>()
-            .set("Soft", 3)
+            .set("Soft", 0.05)
             .set("Medium", 5)
             .set("Hard", 7)
     );
@@ -38,33 +40,34 @@ export default function EggCookingHelper() {
     );
 
     function calcBoilTime(eggSize: EggSize, boilingLevel: BoilingLevel) {
-        let cookingTime;
-        if (eggSize !== undefined) {
-            const sizeMap = cookingTimes.get(eggSize);
-
-            if (sizeMap !== undefined) {
-                cookingTime = sizeMap.get(boilingLevel);
-            }
+        const sizeMap = cookingTimes.get(eggSize);
+        if (!sizeMap) {
+            return;
         }
-        if (cookingTime !== undefined) {
-            setRemainingTimerSeconds(cookingTime * 60);
+        const cookingTime = sizeMap.get(boilingLevel);
+        if (!cookingTime) {
+            return;
         }
+        const timeInSeconds = cookingTime * 60;
+        return timeInSeconds;
     }
 
     function reduceTimer() {
-        if (remainingTimerSeconds > 0) {
-            setRemainingTimerSeconds((remainingTimerSeconds) => {
+        setRemainingTimerSeconds((remainingTimerSeconds) => {
+            if (remainingTimerSeconds > 0) {
                 return remainingTimerSeconds - 1;
-            });
-        } else {
+            }
             return 0;
-        }
+        });
     }
 
     useEffect(() => {
-        eggSize && boilingLevel && calcBoilTime(eggSize, boilingLevel);
+        const boilingSeconds = calcBoilTime(eggSize, boilingLevel);
+        if (!boilingSeconds) {
+            return;
+        }
+        setRemainingTimerSeconds(boilingSeconds);
     }, [eggSize, boilingLevel]);
-    console.log(intervalID, "intervall");
 
     return (
         <div>
@@ -141,7 +144,13 @@ export default function EggCookingHelper() {
                 {intervalID !== undefined && (
                     <button
                         onClick={() => {
-                            setRemainingTimerSeconds(0);
+                            const initialBoilingTime = calcBoilTime(
+                                eggSize,
+                                boilingLevel
+                            );
+                            if (initialBoilingTime !== undefined) {
+                                setRemainingTimerSeconds(initialBoilingTime);
+                            }
                             clearInterval(intervalID);
                             setIntervalID(undefined);
                         }}
