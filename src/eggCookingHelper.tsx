@@ -1,5 +1,11 @@
 import { useEffect, useState } from "react";
 
+function createAudio() {
+    const audio = new Audio("/alert.mp3");
+    audio.loop = true;
+    return audio;
+}
+
 export default function EggCookingHelper() {
     type EggSize = "S" | "M" | "L";
     type BoilingLevel = "Soft" | "Medium" | "Hard";
@@ -8,7 +14,8 @@ export default function EggCookingHelper() {
     const [boilingLevel, setBoilingLevel] = useState<BoilingLevel>("Soft");
     const [remainingTimerSeconds, setRemainingTimerSeconds] = useState(0);
     const [intervalID, setIntervalID] = useState<number>();
-    const [alertVisible, setAlertVisible] = useState(false);
+    const [alertActive, setAlertActive] = useState(false);
+    const [audio] = useState(createAudio());
 
     const cookingTimes = new Map<EggSize, Map<BoilingLevel, number>>();
     const minutes = Math.floor(remainingTimerSeconds / 60);
@@ -58,11 +65,12 @@ export default function EggCookingHelper() {
             if (remainingTimerSeconds > 1) {
                 return remainingTimerSeconds - 1;
             }
-            setAlertVisible(true);
+            setAlertActive(true);
             setIntervalID((intervalID) => {
                 clearInterval(intervalID);
                 return undefined;
             });
+            audio.play();
             return 0;
         });
     }
@@ -159,18 +167,20 @@ export default function EggCookingHelper() {
                             }
                             clearInterval(intervalID);
                             setIntervalID(undefined);
-                            setAlertVisible(false);
+                            setAlertActive(false);
                         }}
                     >
                         Stop Timer
                     </button>
                 )}
-                {alertVisible && (
+                {alertActive && (
                     <div>
                         <h3>Your Egg is ready!</h3>
                         <button
                             onClick={() => {
-                                setAlertVisible(false);
+                                audio.pause();
+                                audio.currentTime = 0;
+                                setAlertActive(false);
                                 const initialBoilingTime = calcBoilTime(
                                     eggSize,
                                     boilingLevel
@@ -190,3 +200,5 @@ export default function EggCookingHelper() {
         </div>
     );
 }
+
+//Morgen ansetzen: SoundDatei einbauen, wenn Timer auf 0 geht
