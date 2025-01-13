@@ -10,8 +10,8 @@ export default function EggCookingHelper() {
     type EggSize = "S" | "M" | "L";
     type BoilingLevel = "Soft" | "Medium" | "Hard";
 
-    const [eggSize, setEggSize] = useState<EggSize>("S");
-    const [boilingLevel, setBoilingLevel] = useState<BoilingLevel>("Soft");
+    const [eggSize, setEggSize] = useState<EggSize>("M");
+    const [boilingLevel, setBoilingLevel] = useState<BoilingLevel>("Medium");
     const [remainingTimerSeconds, setRemainingTimerSeconds] = useState(0);
     const [intervalID, setIntervalID] = useState<number>();
     const [alertActive, setAlertActive] = useState(false);
@@ -20,8 +20,6 @@ export default function EggCookingHelper() {
     const cookingTimes = new Map<EggSize, Map<BoilingLevel, number>>();
     const minutes = Math.floor(remainingTimerSeconds / 60);
     const seconds = remainingTimerSeconds % 60;
-
-    //Test Timer Zeit vor PR umstellen auf 3
 
     cookingTimes.set(
         "S",
@@ -84,121 +82,166 @@ export default function EggCookingHelper() {
     }, [eggSize, boilingLevel]);
 
     return (
-        <div>
-            <h1>Egg Cooking Helper</h1>
-            <div>
-                <h3>Select the Egg Size:</h3>
-                <button
-                    key={"S"}
-                    onClick={() => {
-                        setEggSize("S");
-                    }}
-                >
-                    S
-                </button>
-                <button
-                    key={"M"}
-                    onClick={() => {
-                        setEggSize("M");
-                    }}
-                >
-                    M
-                </button>
-                <button
-                    key={"L"}
-                    onClick={() => {
-                        setEggSize("L");
-                    }}
-                >
-                    L
-                </button>
-            </div>
-            <div>
-                <h3>Select the desired consistency:</h3>
-                <button
-                    key={"Soft"}
-                    onClick={() => {
-                        setBoilingLevel("Soft");
-                    }}
-                >
-                    Soft
-                </button>
-                <button
-                    key={"Medium"}
-                    onClick={() => {
-                        setBoilingLevel("Medium");
-                    }}
-                >
-                    Medium
-                </button>
-                <button
-                    key={"Hard"}
-                    onClick={() => {
-                        setBoilingLevel("Hard");
-                    }}
-                >
-                    Hard
-                </button>
-            </div>
-            <div>
-                <h3>Calculated Cooking Time:</h3>
-                <div>
-                    {minutes}:{seconds.toString().padStart(2, "0")}
-                </div>
-                {intervalID === undefined && (
-                    <button
-                        onClick={() => {
-                            const intervalID = setInterval(reduceTimer, 1000);
-                            setIntervalID(intervalID);
-                        }}
-                    >
-                        Start Timer
-                    </button>
-                )}
-                {intervalID !== undefined && (
-                    <button
-                        onClick={() => {
-                            const initialBoilingTime = calcBoilTime(
-                                eggSize,
-                                boilingLevel
-                            );
-                            if (initialBoilingTime !== undefined) {
-                                setRemainingTimerSeconds(initialBoilingTime);
-                            }
-                            clearInterval(intervalID);
-                            setIntervalID(undefined);
-                            setAlertActive(false);
-                        }}
-                    >
-                        Stop Timer
-                    </button>
-                )}
-                {alertActive && (
+        <div className="bg-[rgb(204,193,173)] flex justify-center">
+            <div className="bg-[url('/kitchen-bg.png')] bg-no-repeat bg-contain bg-center border-8 border-[rgb(165,133,116)] h-screen aspect-[980/931]">
+                <div className="flex flex-col items-center justify-center h-screen gap-y-4">
+                    <div className="font-bold text-4xl">Egg Cooking Helper</div>
                     <div>
-                        <h3>Your Egg is ready!</h3>
-                        <button
-                            onClick={() => {
-                                audio.pause();
-                                audio.currentTime = 0;
-                                setAlertActive(false);
-                                const initialBoilingTime = calcBoilTime(
-                                    eggSize,
-                                    boilingLevel
-                                );
-                                if (initialBoilingTime !== undefined) {
-                                    setRemainingTimerSeconds(
-                                        initialBoilingTime
-                                    );
-                                }
-                            }}
-                        >
-                            Got it!
-                        </button>
+                        <div className="text-xl flex justify-center">
+                            Select the Egg Size:
+                        </div>
+                        <div className="gap-2 flex">
+                            <button
+                                className={`border border-black rounded-lg p-2 px-6 font-bold hover:scale-105 ${
+                                    eggSize === "S" ? "bg-black/20" : "bg-white"
+                                }`}
+                                key={"S"}
+                                onClick={() => {
+                                    setEggSize("S");
+                                }}
+                            >
+                                S
+                            </button>
+                            <button
+                                className={`border border-black rounded-lg p-2 px-6 font-bold hover:scale-105 ${
+                                    eggSize === "M" ? "bg-black/20" : "bg-white"
+                                }`}
+                                key={"M"}
+                                onClick={() => {
+                                    setEggSize("M");
+                                }}
+                            >
+                                M
+                            </button>
+                            <button
+                                className={`border border-black rounded-lg p-2 px-6 font-bold hover:scale-105 ${
+                                    eggSize === "L" ? "bg-black/20" : "bg-white"
+                                }`}
+                                key={"L"}
+                                onClick={() => {
+                                    setEggSize("L");
+                                }}
+                            >
+                                L
+                            </button>
+                        </div>
                     </div>
-                )}
+                    <div>
+                        <div className="text-xl flex justify-center">
+                            Select the desired consistency:
+                        </div>
+                        <div className="flex gap-2">
+                            <button
+                                className={`border border-black rounded-lg p-2 px-6 font-bold hover:scale-105 ${
+                                    boilingLevel === "Soft"
+                                        ? "bg-black/20"
+                                        : "bg-white"
+                                }`}
+                                key={"Soft"}
+                                onClick={() => {
+                                    setBoilingLevel("Soft");
+                                }}
+                            >
+                                Soft
+                            </button>
+                            <button
+                                className={`border border-black rounded-lg p-2 px-6 font-bold hover:scale-105 ${
+                                    boilingLevel === "Medium"
+                                        ? "bg-black/20"
+                                        : "bg-white"
+                                }`}
+                                key={"Medium"}
+                                onClick={() => {
+                                    setBoilingLevel("Medium");
+                                }}
+                            >
+                                Medium
+                            </button>
+                            <button
+                                className={`border border-black rounded-lg p-2 px-6 font-bold hover:scale-105 ${
+                                    boilingLevel === "Hard"
+                                        ? "bg-black/20"
+                                        : "bg-white"
+                                }`}
+                                key={"Hard"}
+                                onClick={() => {
+                                    setBoilingLevel("Hard");
+                                }}
+                            >
+                                Hard
+                            </button>
+                        </div>
+                    </div>
+                    <div className="flex flex-col items-center">
+                        <div className="text-xl flex justify-center">
+                            Calculated Cooking Time:
+                        </div>
+                        <div className="flex flex-col gap-2">
+                            <div className="flex justify-center text-3xl border-2 border-black rounded-lg bg-white/50 p-2 font-bold font-mono">
+                                {minutes}:{seconds.toString().padStart(2, "0")}
+                            </div>
+                            {intervalID === undefined && (
+                                <button
+                                    className="border border-black rounded-lg bg-white p-2 px-6 font-bold hover:bg-white/70 hover:scale-105"
+                                    onClick={() => {
+                                        const intervalID = setInterval(
+                                            reduceTimer,
+                                            1000
+                                        );
+                                        setIntervalID(intervalID);
+                                    }}
+                                >
+                                    Start Timer
+                                </button>
+                            )}
+                            {intervalID !== undefined && (
+                                <button
+                                    className="border border-black rounded-lg bg-white p-2 px-6 font-bold hover:bg-white/70 hover:scale-105"
+                                    onClick={() => {
+                                        const initialBoilingTime = calcBoilTime(
+                                            eggSize,
+                                            boilingLevel
+                                        );
+                                        if (initialBoilingTime !== undefined) {
+                                            setRemainingTimerSeconds(
+                                                initialBoilingTime
+                                            );
+                                        }
+                                        clearInterval(intervalID);
+                                        setIntervalID(undefined);
+                                        setAlertActive(false);
+                                    }}
+                                >
+                                    Stop Timer
+                                </button>
+                            )}
+                        </div>
+                        {alertActive && (
+                            <div>
+                                <div>Your Egg is ready!</div>
+                                <button
+                                    onClick={() => {
+                                        audio.pause();
+                                        audio.currentTime = 0;
+                                        setAlertActive(false);
+                                        const initialBoilingTime = calcBoilTime(
+                                            eggSize,
+                                            boilingLevel
+                                        );
+                                        if (initialBoilingTime !== undefined) {
+                                            setRemainingTimerSeconds(
+                                                initialBoilingTime
+                                            );
+                                        }
+                                    }}
+                                >
+                                    Got it!
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
             </div>
         </div>
     );
 }
-
-//Morgen ansetzen: SoundDatei einbauen, wenn Timer auf 0 geht
