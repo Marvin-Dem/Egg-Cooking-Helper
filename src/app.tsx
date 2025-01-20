@@ -1,4 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
+
+type EggSize = "S" | "M" | "L";
+type BoilingLevel = "Soft" | "Medium" | "Hard";
 
 function createAudio() {
     const audio = new Audio("/alert.mp3");
@@ -6,10 +9,46 @@ function createAudio() {
     return audio;
 }
 
-export default function EggCookingHelper() {
-    type EggSize = "S" | "M" | "L";
-    type BoilingLevel = "Soft" | "Medium" | "Hard";
+const cookingTimes = new Map<EggSize, Map<BoilingLevel, number>>();
 
+cookingTimes.set(
+    "S",
+    new Map<BoilingLevel, number>()
+        .set("Soft", 3)
+        .set("Medium", 5)
+        .set("Hard", 7)
+);
+
+cookingTimes.set(
+    "M",
+    new Map<BoilingLevel, number>()
+        .set("Soft", 4)
+        .set("Medium", 6)
+        .set("Hard", 8)
+);
+
+cookingTimes.set(
+    "L",
+    new Map<BoilingLevel, number>()
+        .set("Soft", 5)
+        .set("Medium", 7)
+        .set("Hard", 9)
+);
+
+function calcBoilTime(eggSize: EggSize, boilingLevel: BoilingLevel) {
+    const sizeMap = cookingTimes.get(eggSize);
+    if (!sizeMap) {
+        return;
+    }
+    const cookingTime = sizeMap.get(boilingLevel);
+    if (!cookingTime) {
+        return;
+    }
+    const timeInSeconds = cookingTime * 60;
+    return timeInSeconds;
+}
+
+export default function EggCookingHelper() {
     const [eggSize, setEggSize] = useState<EggSize>("M");
     const [boilingLevel, setBoilingLevel] = useState<BoilingLevel>("Medium");
     const [remainingTimerSeconds, setRemainingTimerSeconds] = useState(0);
@@ -17,61 +56,26 @@ export default function EggCookingHelper() {
     const [alertActive, setAlertActive] = useState(false);
     const [audio] = useState(createAudio());
 
-    const cookingTimes = new Map<EggSize, Map<BoilingLevel, number>>();
     const minutes = Math.floor(remainingTimerSeconds / 60);
     const seconds = remainingTimerSeconds % 60;
 
-    cookingTimes.set(
-        "S",
-        new Map<BoilingLevel, number>()
-            .set("Soft", 3)
-            .set("Medium", 5)
-            .set("Hard", 7)
-    );
-
-    cookingTimes.set(
-        "M",
-        new Map<BoilingLevel, number>()
-            .set("Soft", 4)
-            .set("Medium", 6)
-            .set("Hard", 8)
-    );
-
-    cookingTimes.set(
-        "L",
-        new Map<BoilingLevel, number>()
-            .set("Soft", 5)
-            .set("Medium", 7)
-            .set("Hard", 9)
-    );
-
-    function calcBoilTime(eggSize: EggSize, boilingLevel: BoilingLevel) {
-        const sizeMap = cookingTimes.get(eggSize);
-        if (!sizeMap) {
-            return;
-        }
-        const cookingTime = sizeMap.get(boilingLevel);
-        if (!cookingTime) {
-            return;
-        }
-        const timeInSeconds = cookingTime * 60;
-        return timeInSeconds;
-    }
-
-    function reduceTimer() {
-        setRemainingTimerSeconds((remainingTimerSeconds) => {
-            if (remainingTimerSeconds > 1) {
-                return remainingTimerSeconds - 1;
-            }
-            setAlertActive(true);
-            setIntervalID((intervalID) => {
-                clearInterval(intervalID);
-                return undefined;
+    const reduceTimer = useMemo(() => {
+        function reduceTimer() {
+            setRemainingTimerSeconds((remainingTimerSeconds) => {
+                if (remainingTimerSeconds > 1) {
+                    return remainingTimerSeconds - 1;
+                }
+                setAlertActive(true);
+                setIntervalID((intervalID) => {
+                    clearInterval(intervalID);
+                    return undefined;
+                });
+                audio.play();
+                return 0;
             });
-            audio.play();
-            return 0;
-        });
-    }
+        }
+        return reduceTimer;
+    }, [audio]);
 
     useEffect(() => {
         const boilingSeconds = calcBoilTime(eggSize, boilingLevel);
@@ -83,7 +87,7 @@ export default function EggCookingHelper() {
 
     return (
         <div className="bg-[rgb(204,193,173)] flex justify-center overflow-hidden">
-            <div className="bg-[url('/kitchen-bg.png')] bg-no-repeat bg-contain bg-center border-x-8 border-[rgb(165,133,116)] h-screen aspect-[980/931]">
+            <div className="box-content bg-[url('/kitchen-bg.png')] bg-no-repeat bg-contain bg-center border-x-8 border-[rgb(165,133,116)] h-screen aspect-[980/931]">
                 <div className="flex flex-col items-center justify-center h-screen gap-y-4">
                     <div className="font-bold text-4xl">Egg Cooking Helper</div>
                     <div>
