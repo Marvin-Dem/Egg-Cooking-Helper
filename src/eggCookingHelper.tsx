@@ -24,7 +24,7 @@ export default function EggCookingHelper() {
     cookingTimes.set(
         "S",
         new Map<BoilingLevel, number>()
-            .set("Soft", 0.05)
+            .set("Soft", 3)
             .set("Medium", 5)
             .set("Hard", 7)
     );
@@ -82,8 +82,8 @@ export default function EggCookingHelper() {
     }, [eggSize, boilingLevel]);
 
     return (
-        <div className="bg-[rgb(204,193,173)] flex justify-center">
-            <div className="bg-[url('/kitchen-bg.png')] bg-no-repeat bg-contain bg-center border-8 border-[rgb(165,133,116)] h-screen aspect-[980/931]">
+        <div className="bg-[rgb(204,193,173)] flex justify-center overflow-hidden">
+            <div className="bg-[url('/kitchen-bg.png')] bg-no-repeat bg-contain bg-center border-x-8 border-[rgb(165,133,116)] h-screen aspect-[980/931]">
                 <div className="flex flex-col items-center justify-center h-screen gap-y-4">
                     <div className="font-bold text-4xl">Egg Cooking Helper</div>
                     <div>
@@ -217,26 +217,34 @@ export default function EggCookingHelper() {
                             )}
                         </div>
                         {alertActive && (
-                            <div>
-                                <div>Your Egg is ready!</div>
-                                <button
-                                    onClick={() => {
-                                        audio.pause();
-                                        audio.currentTime = 0;
-                                        setAlertActive(false);
-                                        const initialBoilingTime = calcBoilTime(
-                                            eggSize,
-                                            boilingLevel
-                                        );
-                                        if (initialBoilingTime !== undefined) {
-                                            setRemainingTimerSeconds(
-                                                initialBoilingTime
-                                            );
-                                        }
-                                    }}
-                                >
-                                    Got it!
-                                </button>
+                            <div className="fixed h-screen inset-0 bg-black/50 flex justify-center items-center z-1">
+                                <div className="bg-white rounded-lg p-6 flex flex-col items-center">
+                                    <div className="text-3xl text-center mb-4 font-bold">
+                                        Your Egg is ready!
+                                    </div>
+                                    <button
+                                        className="border border-black rounded-lg bg-white p-2 px-6 font-bold hover:scale-105"
+                                        onClick={() => {
+                                            audio.pause();
+                                            audio.currentTime = 0;
+                                            setAlertActive(false);
+                                            const initialBoilingTime =
+                                                calcBoilTime(
+                                                    eggSize,
+                                                    boilingLevel
+                                                );
+                                            if (
+                                                initialBoilingTime !== undefined
+                                            ) {
+                                                setRemainingTimerSeconds(
+                                                    initialBoilingTime
+                                                );
+                                            }
+                                        }}
+                                    >
+                                        Got it!
+                                    </button>
+                                </div>
                             </div>
                         )}
                     </div>
