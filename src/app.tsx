@@ -48,7 +48,7 @@ function calcBoilTime(eggSize: EggSize, boilingLevel: BoilingLevel) {
     return timeInSeconds;
 }
 
-export default function EggCookingHelper() {
+export default function App() {
     const [eggSize, setEggSize] = useState<EggSize>("M");
     const [boilingLevel, setBoilingLevel] = useState<BoilingLevel>("Medium");
     const [remainingTimerSeconds, setRemainingTimerSeconds] = useState(0);
